@@ -58,12 +58,14 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });  // Ensure userId is in the token
+    const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {
+    console.error('Error during login:', error);  // Log the error
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Create Event Route
 app.post('/events', authenticateToken, async (req, res) => {
