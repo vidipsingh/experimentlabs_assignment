@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 const CreateEvent = ({ onEventAdded }) => {
     const [title, setTitle] = useState('');
@@ -58,6 +59,10 @@ const CreateEvent = ({ onEventAdded }) => {
         {message && <p>{message}</p>}
       </form>
     );
+  };
+
+  CreateEvent.propTypes = {
+    onEventAdded: PropTypes.func.isRequired,
   };
   
 export default CreateEvent;
