@@ -1,5 +1,6 @@
 import Login from '../components/Login';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const LoginPage = ({ setAuth }) => {
   return (
@@ -13,6 +14,10 @@ const LoginPage = ({ setAuth }) => {
       </div>
     </div>
   );
+};
+
+LoginPage.propTypes = {
+  setAuth: PropTypes.func.isRequired,
 };
 
 export default LoginPage;

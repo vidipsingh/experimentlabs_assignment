@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import EditEventModal from './EditEventModal';
+import PropTypes from 'prop-types';
 
 const EventList = ({ events, setEvents }) => {
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -14,7 +15,7 @@ const EventList = ({ events, setEvents }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setEvents(events.filter(event => event.id !== id)); // Update state after deletion
+      setEvents(events.filter(event => event.id !== id));
     } catch (error) {
       console.error('Error deleting event:', error);
     }
@@ -76,6 +77,11 @@ const EventList = ({ events, setEvents }) => {
       />
     </div>
   );
+};
+
+EventList.propTypes = {
+  events: PropTypes.array.isRequired,
+  setEvents: PropTypes.func.isRequired,
 };
 
 export default EventList;

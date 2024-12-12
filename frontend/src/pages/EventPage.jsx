@@ -6,7 +6,6 @@ import CreateEvent from '../components/CreateEvent';
 const EventPage = ({ handleLogout }) => {
   const [events, setEvents] = useState([]);
 
-  // Fetch events when the component mounts
   useEffect(() => {
     const fetchEvents = async () => {
       const token = localStorage.getItem('token');
@@ -25,9 +24,8 @@ const EventPage = ({ handleLogout }) => {
     fetchEvents();
   }, []);
 
-  // Function to update the events list when a new event is added
   const handleEventAdded = (newEvent) => {
-    setEvents((prevEvents) => [...prevEvents, newEvent]); // Add new event to the state
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
   };
 
   return (
@@ -43,9 +41,7 @@ const EventPage = ({ handleLogout }) => {
         </button>
         </div>
         
-        {/* Pass handleEventAdded to CreateEvent */}
         <CreateEvent onEventAdded={handleEventAdded} />
-        {/* Pass the events state and setEvents to EventList */}
         <EventList events={events} setEvents={setEvents} />
       </div>
     </div>

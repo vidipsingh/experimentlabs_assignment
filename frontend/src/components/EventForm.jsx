@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 const EventForm = ({ fetchEvents }) => {
   const [title, setTitle] = useState('');
@@ -14,7 +15,7 @@ const EventForm = ({ fetchEvents }) => {
         title,
         date,
         description,
-        userId: 1, // Adjust based on auth
+        userId: 1,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -49,6 +50,10 @@ const EventForm = ({ fetchEvents }) => {
       <button type="submit">Create Event</button>
     </form>
   );
+};
+
+EventForm.propTypes = {
+  fetchEvents: PropTypes.func.isRequired,
 };
 
 export default EventForm;

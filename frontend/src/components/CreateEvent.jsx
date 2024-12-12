@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const CreateEvent = ({ onEventAdded }) => {
     const [title, setTitle] = useState('');
-    const [date, setDate] = useState(''); // Updated here
+    const [date, setDate] = useState(''); 
     const [description, setDescription] = useState('');
     const [message, setMessage] = useState('');
 
@@ -22,7 +22,7 @@ const CreateEvent = ({ onEventAdded }) => {
             { title, date, description }, 
             {
               headers: {
-                Authorization: `Bearer ${token}`,  // Attach token to Authorization header
+                Authorization: `Bearer ${token}`,
               },
             });
             
@@ -31,10 +31,10 @@ const CreateEvent = ({ onEventAdded }) => {
           setDate('');
           setDescription('');
 
-          onEventAdded(response.data);  // Update the events list in the parent component
+          onEventAdded(response.data);
         } catch (error) {
           setMessage(error.response?.data?.error || 'Error creating event');
-          console.error('Error creating event:', error.response?.data); // Log error details
+          console.error('Error creating event:', error.response?.data);
         }
       };
   

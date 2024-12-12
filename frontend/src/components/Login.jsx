@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const Login = ({ setAuth }) => {
   const [email, setEmail] = useState('');
@@ -13,11 +14,9 @@ const Login = ({ setAuth }) => {
     try {
       const response = await axios.post('http://localhost:5000/login', { email, password });
       
-      // Store the JWT token in localStorage
       localStorage.setItem('token', response.data.token);
       setAuth(true);
       
-      // Navigate to events page
       navigate('/events');
     } catch (error) {
       setError('Invalid credentials');
@@ -52,6 +51,10 @@ const Login = ({ setAuth }) => {
       <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">Login</button>
     </form>
   );
+};
+
+Login.propTypes = {
+  setAuth: PropTypes.func.isRequired,
 };
 
 export default Login;

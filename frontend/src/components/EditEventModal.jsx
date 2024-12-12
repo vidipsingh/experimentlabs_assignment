@@ -133,4 +133,16 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
   );
 };
 
+EditEventModal.propTypes = {
+  event: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+  }),
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onEventUpdated: PropTypes.func.isRequired,
+};
+
 export default EditEventModal;
