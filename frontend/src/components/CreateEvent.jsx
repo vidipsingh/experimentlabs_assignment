@@ -18,7 +18,8 @@ const CreateEvent = ({ onEventAdded }) => {
       setMessage('User not authenticated');
       return;
     }
-  
+
+    setLoading(true); // Start loading state
     try {
       const response = await axios.post('http://localhost:5000/events', 
         { title, date, description }, 
@@ -27,51 +28,18 @@ const CreateEvent = ({ onEventAdded }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+
       setMessage('Event created successfully!');
       setTitle('');
       setDate('');
       setDescription('');
 
-      onEventAdded(response.data);
+      onEventAdded(response.data); // Call the parent function with new event data
     } catch (error) {
       setMessage(error.response?.data?.error || 'Error creating event');
       console.error('Error creating event:', error.response?.data);
-    }
-  };
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError('Please log in to create an event');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:5000/events', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title, date, description })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create event');
-      }
-
-      const data = await response.json();
-      setMessage('Event created successfully!');
-      setTitle('');
-      setDate('');
-      setDescription('');
-      onEventAdded(data);
-    } catch (error) {
-      setError(error.message || 'Error creating event');
-      console.error('Error creating event:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state after the request is completed
     }
   };
 
