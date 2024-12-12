@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 
 const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
@@ -37,28 +38,22 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/events/${event.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title, date, description })
-      });
+      await axios.put(`http://localhost:5000/events/${event.id}`, 
+        { title, date, description }, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to update event');
-      }
-
-      const data = await response.json();
       setMessage('Event updated successfully!');
-      onEventUpdated(data);
+      onEventUpdated();
       setTimeout(() => {
         onClose();
       }, 1500);
     } catch (error) {
-      setError(error.message || 'Error updating event');
-      console.error('Error updating event:', error);
+      setMessage(error.response?.data?.error || 'Error updating event');
+      console.error('Error updating event:', error.response?.data);
     } finally {
       setLoading(false);
     }

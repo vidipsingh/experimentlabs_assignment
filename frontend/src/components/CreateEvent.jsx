@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 
 const CreateEvent = ({ onEventAdded }) => {
@@ -11,9 +12,33 @@ const CreateEvent = ({ onEventAdded }) => {
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    setMessage('');
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      setMessage('User not authenticated');
+      return;
+    }
+  
+    try {
+      const response = await axios.post('http://localhost:5000/events', 
+        { title, date, description }, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+      setMessage('Event created successfully!');
+      setTitle('');
+      setDate('');
+      setDescription('');
+
+      onEventAdded(response.data);
+    } catch (error) {
+      setMessage(error.response?.data?.error || 'Error creating event');
+      console.error('Error creating event:', error.response?.data);
+    }
+  };
 
     const token = localStorage.getItem('token');
     if (!token) {
