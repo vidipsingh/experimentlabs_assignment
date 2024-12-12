@@ -41,47 +41,55 @@ const EventList = ({ events, setEvents }) => {
   };
 
   return (
-    <div className='my-2'>
-      <h2 className='font-bold text-2xl my-2'>Your Events</h2>
-      <ul>
-        {events.map((event) => (
-          <li key={event.id} className='flex justify-between items-center my-4 p-4 bg-stone-100 rounded-md'>
-            <div className='flex-grow'>
-              <h3 className='font-semibold text-lg'>{event.title}</h3>
-              <p className='text-sm text-gray-600'>{new Date(event.date).toLocaleString()}</p>
-              <p className='text-gray-700'>{event.description}</p>
-            </div>
-            <div className='flex space-x-2'>
-              <button 
-                onClick={() => handleEdit(event)} 
-                className='bg-blue-500 px-4 py-2 rounded-md text-white'
-              >
-                Edit
-              </button>
-              <button 
-                onClick={() => handleDelete(event.id)} 
-                className='bg-red-500 px-4 py-2 rounded-md text-white'
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div className='my-4'>
+      <h2 className='font-bold text-xl mb-4'>Your Events</h2>
+      
+      {events.length === 0 ? (
+        <p className='text-gray-500'>No events available. Please add some!</p>
+       ) : (
+         <ul>
+           {events.map((event) => (
+             <li key={event.id} className='flex justify-between items-center my-2 p-4 bg-white shadow-md rounded-md'>
+               <div className='flex-grow'>
+                 <h3 className='font-semibold text-lg'>{event.title}</h3>
+                 <p className='text-sm text-gray-600'>{new Date(event.date).toLocaleString()}</p>
+                 <p className='text-gray-700'>{event.description}</p>
+               </div>
+               <div className='flex space-x-2'>
+                 <button 
+                   onClick={() => handleEdit(event)} 
+                   className='bg-blue-500 px-3 py-1 rounded-md text-white hover:bg-blue-600 transition'
+                 >
+                   Edit
+                 </button>
+                 <button 
+                   onClick={() => handleDelete(event.id)} 
+                   className='bg-red-500 px-3 py-1 rounded-md text-white hover:bg-red-600 transition'
+                 >
+                   Delete
+                 </button>
+               </div>
+             </li>
+           ))}
+         </ul>
+       )}
 
-      <EditEventModal 
-        event={selectedEvent} 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)}
-        onEventUpdated={fetchUpdatedEvents}
-      />
-    </div>
-  );
+       {/* Edit Event Modal */}
+       {selectedEvent && (
+         <EditEventModal 
+           event={selectedEvent} 
+           isOpen={isEditModalOpen} 
+           onClose={() => setIsEditModalOpen(false)}
+           onEventUpdated={fetchUpdatedEvents}
+         />
+       )}
+     </div>
+   );
 };
 
 EventList.propTypes = {
-  events: PropTypes.array.isRequired,
-  setEvents: PropTypes.func.isRequired,
+   events: PropTypes.array.isRequired,
+   setEvents: PropTypes.func.isRequired,
 };
 
 export default EventList;
