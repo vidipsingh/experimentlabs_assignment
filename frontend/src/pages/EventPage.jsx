@@ -11,7 +11,7 @@ const EventPage = ({ handleLogout }) => {
     const fetchEvents = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`API_URL/events`, {
+        const response = await axios.get(`${API_URL}/events`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
