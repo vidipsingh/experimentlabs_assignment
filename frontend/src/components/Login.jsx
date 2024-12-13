@@ -25,16 +25,25 @@ const Login = ({ setAuth }) => {
     }
   };
 
-  const handleGoogleLoginSuccess = async (credentialResponse) => {
+  const handleSuccess = async (credentialResponse) => {
     try {
-      const response = await axios.get(`http://localhost:5000/auth/google/callback?token=${credentialResponse.credential}`);
+      // Instead of making a POST request to /auth/google/callback,
+      // make a POST request to a new endpoint that handles the token
+      const response = await axios.post('http://localhost:5000/auth/google/verify', {
+        credential: credentialResponse.credential,
+      });
+
       localStorage.setItem('token', response.data.token);
       setAuth(true);
-      navigate('/events');
+      navigate('/events'); // Add this to redirect after successful login
     } catch (error) {
       console.error('Error during Google login:', error);
       setError('Google login failed');
     }
+  };
+
+  const handleError = () => {
+    console.log('Login Failed');
   };
 
   return (
@@ -70,9 +79,8 @@ const Login = ({ setAuth }) => {
       <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded mb-4">Login</button>
 
       <GoogleLogin 
-        onSuccess={handleGoogleLoginSuccess}
-        onError={() => console.log('Login Failed')}
-        className='my-2'
+        onSuccess={handleSuccess}
+        onError={handleError}
       />
       {error && <p>{error}</p>}
     </form>

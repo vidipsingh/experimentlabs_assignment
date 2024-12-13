@@ -7,6 +7,9 @@ const dotenv = require('dotenv');
 const passport = require('./utils/passport');
 const session = require('express-session');
 
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 dotenv.config();
 const prisma = new PrismaClient();
 const app = express();
@@ -14,7 +17,10 @@ const app = express();
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 // Session configuration
@@ -22,13 +28,48 @@ app.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }, // Set to true if using HTTPS
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 const SECRET_KEY = process.env.JWT_SECRET;
+
+app.post('/auth/google/verify', async (req, res) => {
+  try {
+    const { credential } = req.body;
+    
+    // Verify the token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    
+    const payload = ticket.getPayload();
+    const email = payload.email;
+
+    // Check if user exists, if not create one
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          password: '', // You might want to handle this differently
+        },
+      });
+    }
+
+    // Create JWT token
+    const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ token });
+  } catch (error) {
+    console.error('Error verifying Google token:', error);
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
 
 // Google Auth Routes
 app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));

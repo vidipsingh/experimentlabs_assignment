@@ -5,7 +5,7 @@ import EventPage from './pages/EventPage';
 import { useState, useEffect } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-const CLIENT_ID = import.meta.env.REACT_APP_GOOGLE_CLIENT_ID;
+const CLIENT_ID = import.meta.env.VITE_APP_GOOGLE_CLIENT_ID;
 function App() {
   const [auth, setAuth] = useState(false);
 
