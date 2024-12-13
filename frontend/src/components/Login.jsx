@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = ({ setAuth }) => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,18 @@ const Login = ({ setAuth }) => {
       navigate('/events');
     } catch (error) {
       setError('Invalid credentials');
+    }
+  };
+
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/auth/google/callback?token=${credentialResponse.credential}`);
+      localStorage.setItem('token', response.data.token);
+      setAuth(true);
+      navigate('/events');
+    } catch (error) {
+      console.error('Error during Google login:', error);
+      setError('Google login failed');
     }
   };
 
@@ -54,7 +67,14 @@ const Login = ({ setAuth }) => {
         </span>
       </div>
       {error && <p className="text-red-500">{error}</p>}
-      <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">Login</button>
+      <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded mb-4">Login</button>
+
+      <GoogleLogin 
+        onSuccess={handleGoogleLoginSuccess}
+        onError={() => console.log('Login Failed')}
+        className='my-2'
+      />
+      {error && <p>{error}</p>}
     </form>
   );
 };

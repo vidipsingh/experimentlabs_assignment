@@ -19,7 +19,7 @@ const CreateEvent = ({ onEventAdded }) => {
       return;
     }
 
-    setLoading(true); // Start loading state
+    setLoading(true);
     try {
       const response = await axios.post('http://localhost:5000/events', 
         { title, date, description }, 
@@ -34,12 +34,12 @@ const CreateEvent = ({ onEventAdded }) => {
       setDate('');
       setDescription('');
 
-      onEventAdded(response.data); // Call the parent function with new event data
+      onEventAdded(response.data);
     } catch (error) {
       setMessage(error.response?.data?.error || 'Error creating event');
       console.error('Error creating event:', error.response?.data);
     } finally {
-      setLoading(false); // Reset loading state after the request is completed
+      setLoading(false);
     }
   };
 
