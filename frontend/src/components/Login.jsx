@@ -12,11 +12,12 @@ const Login = ({ setAuth }) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/login', { email, password });
+      const response = await axios.post(`${API_URL}/login1`, { email, password });
       localStorage.setItem('token', response.data.token);
       setAuth(true);
       navigate('/events');
@@ -29,7 +30,7 @@ const Login = ({ setAuth }) => {
     try {
       // Instead of making a POST request to /auth/google/callback,
       // make a POST request to a new endpoint that handles the token
-      const response = await axios.post('http://localhost:5000/auth/google/verify', {
+      const response = await axios.post(`${API_URL}/auth/google/verify`, {
         credential: credentialResponse.credential,
       });
 

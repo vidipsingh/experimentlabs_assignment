@@ -10,6 +10,8 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
     if (event) {
       setTitle(event.title);
@@ -38,7 +40,7 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
     }
 
     try {
-      await axios.put(`http://localhost:5000/events/${event.id}`, 
+      await axios.put(`${API_URL}/events/${event.id}`, 
         { title, date, description }, 
         {
           headers: {

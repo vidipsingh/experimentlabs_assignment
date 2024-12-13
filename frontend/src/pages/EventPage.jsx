@@ -5,12 +5,13 @@ import CreateEvent from '../components/CreateEvent';
 
 const EventPage = ({ handleLogout }) => {
   const [events, setEvents] = useState([]);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const fetchEvents = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get('http://localhost:5000/events', {
+        const response = await axios.get(`API_URL/events`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

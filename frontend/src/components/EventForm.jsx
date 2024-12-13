@@ -7,11 +7,13 @@ const EventForm = ({ fetchEvents }) => {
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     try {
-      await axios.post('http://localhost:5000/events', {
+      await axios.post(`${API_URL}/events`, {
         title,
         date,
         description,

@@ -6,11 +6,12 @@ import PropTypes from 'prop-types';
 const EventList = ({ events, setEvents }) => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/events/${id}`, {
+      await axios.delete(`${API_URL}/events/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -29,7 +30,7 @@ const EventList = ({ events, setEvents }) => {
   const fetchUpdatedEvents = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/events', {
+      const response = await axios.get(`${API_URL}/events`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

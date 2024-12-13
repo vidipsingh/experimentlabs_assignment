@@ -17,15 +17,27 @@ const FRONTEND_URL = process.env.NODE_ENV === 'production'
 const prisma = new PrismaClient();
 const app = express();
 
+const ALLOWED_ORIGINS = [
+  'https://experimentlabs-assignment-4.onrender.com',  // Production frontend
+  'http://localhost:5173'  // Development frontend
+];
+
 app.use(cors({
-  origin: [
-    'https://experimentlabs-assignment-4.onrender.com',
-    'http://localhost:5173'
-  ],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (ALLOWED_ORIGINS.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.options('*', cors());
 
 app.use(express.json());

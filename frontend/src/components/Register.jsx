@@ -10,11 +10,12 @@ const Register = () => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/register', { email, password });
+      await axios.post(`${API_URL}/register`, { email, password });
       alert('Registration successful');
       navigate('/events');
     } catch (error) {
