@@ -11,15 +11,22 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 dotenv.config();
+const FRONTEND_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://experimentlabs-assignment-4.onrender.com'
+  : 'http://localhost:5173';
 const prisma = new PrismaClient();
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'https://experimentlabs-assignment-4.onrender.com',
+    'http://localhost:5173'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -78,7 +85,7 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     const token = jwt.sign({ id: req.user.id }, SECRET_KEY, { expiresIn: '1h' });
-    res.redirect(`http://localhost:5173/events?token=${token}`);
+    res.redirect(`${FRONTEND_URL}/events?token=${token}`);
 });
 
 // Middleware to authenticate JWT tokens
