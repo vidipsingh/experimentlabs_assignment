@@ -7,6 +7,8 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (event) {
@@ -24,13 +26,17 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
 
   const handleUpdateEvent = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    setMessage('');
+
     const token = localStorage.getItem('token');
-    
     if (!token) {
-      setMessage('User not authenticated');
+      setError('Please log in to update the event');
+      setLoading(false);
       return;
     }
-  
+
     try {
       await axios.put(`http://localhost:5000/events/${event.id}`, 
         { title, date, description }, 
@@ -39,13 +45,17 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-      
+
       setMessage('Event updated successfully!');
       onEventUpdated();
-      onClose();
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
       setMessage(error.response?.data?.error || 'Error updating event');
       console.error('Error updating event:', error.response?.data);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,76 +67,110 @@ const EditEventModal = ({ event, isOpen, onClose, onEventUpdated }) => {
       onClick={handleOverlayClick}
     >
       <div 
-        className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 transform transition-all duration-300 ease-in-out scale-100 hover:shadow-3xl"
+        className="max-w-xl w-full bg-white rounded-lg shadow-lg p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className='text-3xl font-extrabold text-gray-800'>Edit Event</h2>
-          <button 
-            onClick={onClose} 
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+        <div className="mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Edit Event</h2>
+              <p className="text-gray-600">Update the event details below</p>
+            </div>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleUpdateEvent} className="space-y-6">
           <div>
-            <label className='block text-lg font-semibold text-gray-700 mb-2'>Event Title</label>
-            <input 
-              type="text" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)}  
+            <label 
+              htmlFor="title" 
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Event Title
+            </label>
+            <input
+              id="title"
+              type="text"
               placeholder="Enter event title"
-              className='w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300' 
-              required 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label className='block text-lg font-semibold text-gray-700 mb-2'>Date & Time</label>
-            <input 
-              type="datetime-local" 
-              value={date} 
-              onChange={(e) => setDate(e.target.value)} 
-              className='w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300'
-              required 
+            <label 
+              htmlFor="date" 
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Date & Time
+            </label>
+            <input
+              id="date"
+              type="datetime-local"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label className='block text-lg font-semibold text-gray-700 mb-2'>Description</label>
-            <textarea 
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)} 
+            <label 
+              htmlFor="description" 
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
               placeholder="Enter event description"
-              className='w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 h-32'
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              rows="4"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             />
           </div>
 
-          <div className='flex space-x-4 justify-end'>
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className='px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-300'
+          {error && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-red-600">{error}</p>
+            </div>
+          )}
+
+          {message && (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-green-600">{message}</p>
+            </div>
+          )}
+
+          <div className="flex space-x-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-md font-medium hover:bg-gray-200 transition-colors duration-200"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              className='px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105'
+            <button
+              type="submit"
+              disabled={loading}
+              className={`flex-1 py-3 px-4 bg-blue-600 text-white rounded-md font-medium 
+                ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'} 
+                transition-colors duration-200`}
             >
-              Update Event
+              {loading ? 'Updating Event...' : 'Update Event'}
             </button>
           </div>
-
-          {message && (
-            <div className={`text-center py-2 rounded-lg ${message.includes('successfully') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {message}
-            </div>
-          )}
         </form>
       </div>
     </div>

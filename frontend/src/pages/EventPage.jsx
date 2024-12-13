@@ -29,20 +29,24 @@ const EventPage = ({ handleLogout }) => {
   };
 
   return (
-    <div className="flex flex-col items-center bg-black/90">
-      <div className="bg-white my-4 p-8 shadow-md rounded-md w-2/4">
-        <h2 className="text-2xl font-bold mb-4 text-center">Your Calendar Events</h2>
-        <div className='w-full flex justify-end'>
+    <div className="flex flex-col items-center bg-black/95 min-h-screen p-6">
+      <div className="bg-white shadow-lg rounded-lg w-full max-w-2xl p-8">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Your Calendar Events</h2>
+        
+        <div className='flex justify-end mb-4'>
           <button 
             onClick={handleLogout} 
-            className="mb-4 bg-red-500 text-white py-2 px-4 rounded"
+            className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-200"
           >
-          Logout
-        </button>
+            Logout
+          </button>
         </div>
         
         <CreateEvent onEventAdded={handleEventAdded} />
-        <EventList events={events} setEvents={setEvents} />
+        
+        <div className="mt-6">
+          <EventList events={events} setEvents={setEvents} />
+        </div>
       </div>
     </div>
   );
