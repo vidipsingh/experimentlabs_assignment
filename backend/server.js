@@ -6,47 +6,46 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const passport = require('./utils/passport');
 const session = require('express-session');
-
 const { OAuth2Client } = require('google-auth-library');
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 dotenv.config();
+
 const FRONTEND_URL = process.env.NODE_ENV === 'production' 
   ? 'https://experimentlabs-assignment-4.onrender.com'
   : 'http://localhost:5173';
+
+const BACKEND_URL = process.env.NODE_ENV === 'production'
+  ? 'https://experimentlabs-assignment-3.onrender.com'
+  : 'http://localhost:5000';
+
 const prisma = new PrismaClient();
 const app = express();
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const ALLOWED_ORIGINS = [
-  'https://experimentlabs-assignment-4.onrender.com',  // Production frontend
-  'http://localhost:5173'  // Development frontend
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (ALLOWED_ORIGINS.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+// Updated CORS configuration
+const corsOptions = {
+  origin: [
+    'https://experimentlabs-assignment-4.onrender.com',
+    'http://localhost:5173'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
 
-app.options('*', cors());
-
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// Session configuration
+// Session configuration with updated settings
 app.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 app.use(passport.initialize());
@@ -54,11 +53,11 @@ app.use(passport.session());
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
+// Updated Google verification endpoint
 app.post('/auth/google/verify', async (req, res) => {
   try {
     const { credential } = req.body;
     
-    // Verify the token
     const ticket = await client.verifyIdToken({
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID
@@ -66,8 +65,8 @@ app.post('/auth/google/verify', async (req, res) => {
     
     const payload = ticket.getPayload();
     const email = payload.email;
+    const name = payload.name;
 
-    // Check if user exists, if not create one
     let user = await prisma.user.findUnique({
       where: { email },
     });
@@ -76,29 +75,59 @@ app.post('/auth/google/verify', async (req, res) => {
       user = await prisma.user.create({
         data: {
           email,
-          password: '', // You might want to handle this differently
+          name,
+          password: await bcrypt.hash(Math.random().toString(36), 10),
         },
       });
     }
 
-    // Create JWT token
-    const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
-    res.json({ token });
+    const token = jwt.sign(
+      { 
+        userId: user.id,
+        email: user.email,
+        name: user.name
+      }, 
+      SECRET_KEY, 
+      { expiresIn: '24h' }
+    );
+
+    res.json({ 
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      }
+    });
   } catch (error) {
     console.error('Error verifying Google token:', error);
     res.status(401).json({ error: 'Invalid token' });
   }
 });
 
-// Google Auth Routes
-app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
+// Updated Google OAuth routes
+app.get('/auth/google',
+  passport.authenticate('google', { 
+    scope: ['email', 'profile'],
+    prompt: 'select_account'
+  })
+);
 
 app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: `${FRONTEND_URL}/login` }),
   (req, res) => {
-    const token = jwt.sign({ id: req.user.id }, SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { 
+        userId: req.user.id,
+        email: req.user.email,
+        name: req.user.name
+      }, 
+      SECRET_KEY, 
+      { expiresIn: '24h' }
+    );
     res.redirect(`${FRONTEND_URL}/events?token=${token}`);
-});
+  }
+);
 
 // Middleware to authenticate JWT tokens
 const authenticateToken = (req, res, next) => {
